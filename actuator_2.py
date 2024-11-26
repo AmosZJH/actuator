@@ -20,6 +20,14 @@ def connect_to_driver():
         print("连接失败，请检查连接设置。")
         exit()
 
+def set_motor_current(slave_id, current):
+    try:
+        address = 0x0191
+        client.write_register(address, current, unit=slave_id)
+        print(f"成功设置从站 {slave_id} 的电流为 {current}。")
+    except Exception as e: 
+        print(f"设置电流失败: {e}")
+
 def set_speed_model():
     try:
         address = 0x6200
@@ -27,6 +35,14 @@ def set_speed_model():
         print("成功设置速度模式。")
     except Exception as e:
         print(f"设置速度模式失败: {e}")
+
+def motor_direction(slave_id, direction):
+    try:
+        address = 0x0007
+        client.write_register(address, direction, unit=slave_id)
+        print(f"成功设置从站 {slave_id} 的方向为 {direction}。")
+    except Exception as e:
+        print(f"设置方向失败: {e}")
 
 
 def set_motor_speed(slave_id, speed):
@@ -76,9 +92,11 @@ def main():
     try:
         # 示例：设置速度、启动、运行一段时间后停止
         set_speed_model()
-        set_motor_speed(slave_id, 500)  # 设置速度为500（单位需参考驱动器文档）
+        motor_direction(slave_id, 1)  # 设置方向，0为上升，1为下降
+        #set_motor_current(slave_id, 15)
+        set_motor_speed(slave_id, 200)  # 设置速度为500（单位需参考驱动器文档）
         start_motor(slave_id)
-        time.sleep(5)  # 电机运行5秒
+        time.sleep(2)  # 电机运行5秒
         stop_motor(slave_id)
     finally:
         client.close()  # 关闭连接
